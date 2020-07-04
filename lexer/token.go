@@ -1,11 +1,11 @@
 package lexer
 
 const (
-	EOF = 1 << iota
+	EOF = iota
 	IDENT
+	ILLEGAL
 
 	// Types
-	BOOLEAN
 	INTEGER
 	STRING
 
@@ -40,6 +40,8 @@ const (
 	VARIABLE
 	FUNCTION
 	RETURN
+	TRUE
+	FALSE
 	IMPORT
 	IF
 	ELSE
@@ -52,8 +54,8 @@ var keywords = map[string]Type{
 	"var":    VARIABLE,
 	"fun":    FUNCTION,
 	"return": RETURN,
-	"true":   BOOLEAN,
-	"false":  BOOLEAN,
+	"true":   TRUE,
+	"false":  FALSE,
 	"import": IMPORT,
 	"if":     IF,
 	"else":   ELSE,
@@ -74,7 +76,9 @@ func LookupIdent(ident string) Type {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return 'a' <= ch && ch <= 'z' ||
+		'A' <= ch && ch <= 'Z' ||
+		ch == '_'
 }
 
 func isDigit(ch byte) bool {
@@ -82,8 +86,8 @@ func isDigit(ch byte) bool {
 }
 
 func (l *Lexer) skipSpace() {
-	for l.index < len(l.Input) {
-		char := l.Input[l.index]
+	for l.index < len(l.input) {
+		char := l.input[l.index]
 		switch {
 		case char == '\n':
 			l.line++

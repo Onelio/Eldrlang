@@ -1,19 +1,25 @@
 package lexer
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type Lexer struct {
-	Input []byte
+	input []byte
 	index int
 	line  int
 }
 
+func NewLexer(input []byte) *Lexer {
+	return &Lexer{input: input}
+}
+
 func (l *Lexer) NextToken() Token {
 	l.skipSpace()
-	if l.index >= len(l.Input) {
+	if l.index >= len(l.input) {
 		return Token{Type: EOF, Line: l.line, Literal: ""}
 	}
-	buff := unsafe.Pointer(&(l.Input[l.index]))
+	buff := unsafe.Pointer(&(l.input[l.index]))
 
 	// Two character symbols check
 	switch *(*int16)(buff) {
@@ -105,7 +111,13 @@ func (l *Lexer) NextToken() Token {
 			Literal: l.readNumber(),
 		}
 	}
-	panic("illegal char")
+
+	// In case of unknown character
+	l.index++
+	return Token{
+		Type: ILLEGAL, Line: l.line,
+		Literal: string(char),
+	}
 }
 
 func (l *Lexer) PeekToken() Token {
@@ -118,8 +130,8 @@ func (l *Lexer) PeekToken() Token {
 }
 
 func (l *Lexer) charAt(index int) byte {
-	if index < len(l.Input) {
-		return l.Input[index]
+	if index < len(l.input) {
+		return l.input[index]
 	}
 	return 0
 }
@@ -131,7 +143,7 @@ func (l *Lexer) readIdentifier() string {
 		end++
 	}
 	l.index = end
-	return string(l.Input[start:end])
+	return string(l.input[start:end])
 }
 
 func (l *Lexer) readNumber() string {
@@ -141,7 +153,7 @@ func (l *Lexer) readNumber() string {
 		end++
 	}
 	l.index = end
-	return string(l.Input[start:end])
+	return string(l.input[start:end])
 }
 
 func (l *Lexer) readString() string {
@@ -152,5 +164,5 @@ func (l *Lexer) readString() string {
 		end++
 	}
 	l.index = end + 1 // Skip second quotes
-	return string(l.Input[start:end])
+	return string(l.input[start:end])
 }

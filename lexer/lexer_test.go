@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -27,7 +28,7 @@ if (5 < 10) {
 "foobar"
 "foo bar"
 [1, 2];
-{"foo": "bar"}`)
+{"foo": "bar"} ñ`)
 
 	tests := []struct {
 		expectedType    Type
@@ -89,13 +90,13 @@ if (5 < 10) {
 		{RPAREN, ")"},
 		{LBRACE, "{"},
 		{RETURN, "return"},
-		{BOOLEAN, "true"},
+		{TRUE, "true"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
 		{ELSE, "else"},
 		{LBRACE, "{"},
 		{RETURN, "return"},
-		{BOOLEAN, "false"},
+		{FALSE, "false"},
 		{SEMICOLON, ";"},
 		{RBRACE, "}"},
 		{INTEGER, "10"},
@@ -119,11 +120,12 @@ if (5 < 10) {
 		{COLON, ":"},
 		{STRING, "bar"},
 		{RBRACE, "}"},
+		{ILLEGAL, "Ã"},
+		{ILLEGAL, "±"},
 		{EOF, ""},
 	}
 
-	l := Lexer{Input: input}
-
+	l := NewLexer(input)
 	for i, tt := range tests {
 		tok := l.NextToken()
 
@@ -137,4 +139,5 @@ if (5 < 10) {
 				i, tt.expectedLiteral, tok.Literal)
 		}
 	}
+	fmt.Println("GOOD!")
 }
