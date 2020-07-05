@@ -122,70 +122,32 @@ func (p *Parser) newConditional() Statement {
 
 type Loop struct {
 	Token lexer.Token
-	Init  Expression
-	Cond  Expression
-	Iter  Expression
 	Body  *Block
 }
 
-func (l *Loop) Literal() string { return l.Token.Literal }
-func (l *Loop) String() string {
+func (w *Loop) Literal() string { return w.Token.Literal }
+func (w *Loop) String() string {
 	var out bytes.Buffer
-	out.WriteString("for ")
-	if l.Init != nil {
-		out.WriteString("(")
-		out.WriteString(l.Init.String())
-		out.WriteString("; ")
-		out.WriteString(l.Cond.String())
-		out.WriteString("; ")
-		out.WriteString(l.Iter.String())
-		out.WriteString(";) ")
-	}
-	out.WriteString(l.Body.String())
+	out.WriteString("loop ")
+	out.WriteString(w.Body.String())
 	return out.String()
 }
 
 func (p *Parser) newLoop() Statement {
-	loop := &Loop{Token: p.token, Cond: &Boolean{Value: true}}
-	if p.nextToken() == lexer.LPAREN {
-		p.nextToken() // Skip ( opening
-		loop.Init = p.parseStatement()
-		if _, valid := loop.Init.(*Assign); !valid {
-			err := util.NewError(p.token, util.ExpectedInitL)
-			p.errors.Add(err)
-			return nil
-		}
-		p.nextToken() // Skip ;
-		loop.Cond = p.parseExpression()
-		if _, valid := loop.Cond.(*Infix); !valid {
-			err := util.NewError(p.token, util.ExpectedCondL)
-			p.errors.Add(err)
-			return nil
-		}
-		p.nextToken() // Skip ;
-		loop.Iter = p.parseExpression()
-		p.nextToken() // Skip ;
-		if !p.isToken(lexer.RPAREN) {
-			err := util.NewError(p.token, util.ExpectedLoopC)
-			p.errors.Add(err)
-			return nil
-		}
-		p.nextToken() // Skip )
-	}
-
-	if !p.isToken(lexer.LBRACE) {
+	while := &Loop{Token: p.token}
+	if p.nextToken() != lexer.LBRACE {
 		err := util.NewError(p.token, util.ExpectedBrace, p.token.Literal)
 		p.errors.Add(err)
 		return nil
 	}
-	loop.Body = p.newBlock()
-	return loop
+	while.Body = p.newBlock()
+	return while
 }
 
 type Function struct {
 	Token  lexer.Token
 	Name   *Identifier
-	Params []*Identifier
+	Params []Expression
 	Body   *Block
 }
 
@@ -214,7 +176,8 @@ func (p *Parser) newFunction() Statement {
 		return nil
 	}
 	fun.Name = p.newIdentifier().(*Identifier)
-	if !p.isPeekToken(lexer.LPAREN) {
+	p.nextToken()
+	if !p.isToken(lexer.LPAREN) {
 		err := util.NewError(p.token, util.ExpectedParen, p.token.Literal)
 		p.errors.Add(err)
 		return nil

@@ -45,7 +45,7 @@ const (
 	IMPORT
 	IF
 	ELSE
-	FOR
+	LOOP
 )
 
 type Type int
@@ -59,7 +59,7 @@ var keywords = map[string]Type{
 	"import": IMPORT,
 	"if":     IF,
 	"else":   ELSE,
-	"for":    FOR,
+	"loop":   LOOP,
 }
 
 type Token struct {

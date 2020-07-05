@@ -39,7 +39,7 @@ func (p *Parser) parseStatement() Statement {
 		return p.newBlock()
 	case lexer.IF:
 		return p.newConditional()
-	case lexer.FOR:
+	case lexer.LOOP:
 		return p.newLoop()
 	case lexer.FUNCTION:
 		return p.newFunction()
@@ -112,7 +112,12 @@ func (p *Parser) parseToken(exp Expression) Expression {
 	case lexer.ASTERISK, lexer.SLASH:
 		exp = p.newInfix(exp)
 	case lexer.LPAREN:
-		exp = p.parseGroupExpression()
+		switch exp.(type) {
+		case *Identifier:
+			exp = p.newFuncCall(exp)
+		default:
+			exp = p.parseGroupExpression()
+		}
 	default:
 		err := util.NewError(p.token, util.IllegalLetter, p.token.Literal)
 		p.errors.Add(err)

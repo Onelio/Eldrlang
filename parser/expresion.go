@@ -3,6 +3,7 @@ package parser
 import (
 	"Eldrlang/lexer"
 	"bytes"
+	"strings"
 )
 
 type Assign struct {
@@ -87,4 +88,30 @@ func (p *Parser) newInfix(left Expression) Expression {
 	p.nextToken()
 	expression.Right = p.parseToken(nil)
 	return expression
+}
+
+type FuncCall struct {
+	Token     lexer.Token
+	Function  Expression
+	Arguments []Expression
+}
+
+func (fc *FuncCall) Literal() string { return fc.Token.Literal }
+func (fc *FuncCall) String() string {
+	var out bytes.Buffer
+	var args []string
+	for _, a := range fc.Arguments {
+		args = append(args, a.String())
+	}
+	out.WriteString(fc.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+	return out.String()
+}
+
+func (p *Parser) newFuncCall(function Expression) Expression {
+	exp := &FuncCall{Token: p.token, Function: function}
+	exp.Arguments = p.newParameters()
+	return exp
 }

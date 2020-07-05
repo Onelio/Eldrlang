@@ -24,9 +24,9 @@ func TestParseNodes(t *testing.T) {
 		"if ((!a)) {\n\t\"hello\";\n} else {\n\t\"world\";\n}",
 		"fun j(a, b) {\n\t\"hello\";\n}",
 		"b = a",
-		"for (i = 0; (i < 10); i = (i + 1);) {\n\t\"hello\";\n}",
-		"for {\n\t\"hello\";\n}",
+		"loop {\n\t\"hello\";\n}",
 		"(a == b)",
+		"j(5, (1 + (-1)))",
 	}
 	var code = `
 1; 
@@ -46,9 +46,9 @@ if (!true) { "hello"; }
 if (!a) { "hello"; } else { "world"; }
 fun j(a, b) { "hello"; }
 b = a;
-for (i=0; i<10; i = i + 1;) { "hello"; }
-for { "hello"; }
+loop { "hello"; }
 a == b;
+j(5, 1 + -1);
 `
 	p := NewParser()
 	program := p.ParseProgram(code)

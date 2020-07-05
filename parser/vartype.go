@@ -20,16 +20,21 @@ func (p *Parser) newIdentifier() Expression {
 	return ident
 }
 
-func (p *Parser) newParameters() []*Identifier {
-	var identifiers []*Identifier
+func (p *Parser) newParameters() []Expression {
+	var identifiers []Expression
 	p.nextToken() // Skip opening "("
+	var exp Expression
 	for !p.isTokenOrEOF(lexer.RPAREN) {
-		switch p.token.Type {
-		case lexer.IDENT:
-			ident := p.newIdentifier().(*Identifier)
-			identifiers = append(identifiers, ident)
-		}
+		exp = p.parseToken(exp)
 		p.nextToken()
+		if p.isToken(lexer.COMMA) {
+			identifiers = append(identifiers, exp)
+			exp = nil
+			p.nextToken()
+		}
+	}
+	if exp != nil { // Cause when exiting there may be still one left
+		identifiers = append(identifiers, exp)
 	}
 	if p.isToken(lexer.EOF) {
 		err := util.NewError(p.token, util.UnexpectedEOF, ")")
