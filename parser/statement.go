@@ -121,36 +121,65 @@ func (p *Parser) newConditional() Statement {
 }
 
 type Loop struct {
-	Token   lexer.Token
-	Require Expression
-	Body    *Block
+	Token lexer.Token
+	Init  Expression
+	Cond  Expression
+	Iter  Expression
+	Body  *Block
 }
 
-func (w *Loop) Literal() string { return w.Token.Literal }
-func (w *Loop) String() string {
+func (l *Loop) Literal() string { return l.Token.Literal }
+func (l *Loop) String() string {
 	var out bytes.Buffer
-	out.WriteString("while (")
-	out.WriteString(w.Require.String())
-	out.WriteString(") ")
-	out.WriteString(w.Body.String())
+	out.WriteString("for ")
+	if l.Init != nil {
+		out.WriteString("(")
+		out.WriteString(l.Init.String())
+		out.WriteString("; ")
+		out.WriteString(l.Cond.String())
+		out.WriteString("; ")
+		out.WriteString(l.Iter.String())
+		out.WriteString(";) ")
+	}
+	out.WriteString(l.Body.String())
 	return out.String()
 }
 
 func (p *Parser) newLoop() Statement {
-	while := &Loop{Token: p.token}
-	if p.nextToken() != lexer.LPAREN {
-		err := util.NewError(p.token, util.ExpectedParen, p.token.Literal)
-		p.errors.Add(err)
-		return nil
+	loop := &Loop{Token: p.token, Cond: &Boolean{Value: true}}
+	if p.nextToken() == lexer.LPAREN {
+		p.nextToken() // Skip ( opening
+		loop.Init = p.parseStatement()
+		if _, valid := loop.Init.(*Assign); !valid {
+			err := util.NewError(p.token, util.ExpectedInitL)
+			p.errors.Add(err)
+			return nil
+		}
+		p.nextToken() // Skip ;
+		loop.Cond = p.parseExpression()
+		if _, valid := loop.Cond.(*Infix); !valid {
+			err := util.NewError(p.token, util.ExpectedCondL)
+			p.errors.Add(err)
+			return nil
+		}
+		p.nextToken() // Skip ;
+		loop.Iter = p.parseExpression()
+		p.nextToken() // Skip ;
+		if !p.isToken(lexer.RPAREN) {
+			err := util.NewError(p.token, util.ExpectedLoopC)
+			p.errors.Add(err)
+			return nil
+		}
+		p.nextToken() // Skip )
 	}
-	while.Require = p.parseGroupExpression()
-	if p.nextToken() != lexer.LBRACE {
+
+	if !p.isToken(lexer.LBRACE) {
 		err := util.NewError(p.token, util.ExpectedBrace, p.token.Literal)
 		p.errors.Add(err)
 		return nil
 	}
-	while.Body = p.newBlock()
-	return while
+	loop.Body = p.newBlock()
+	return loop
 }
 
 type Function struct {

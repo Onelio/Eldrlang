@@ -79,8 +79,6 @@ func (p *Parser) parseGroupExpression() Expression {
 
 func (p *Parser) parseToken(exp Expression) Expression {
 	switch p.token.Type {
-	case lexer.SEMICOLON:
-		return nil
 	case lexer.IDENT:
 		exp = p.newIdentifier()
 	case lexer.TRUE, lexer.FALSE:

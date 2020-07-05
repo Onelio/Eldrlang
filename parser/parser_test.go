@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -23,7 +24,8 @@ func TestParseNodes(t *testing.T) {
 		"if ((!a)) {\n\t\"hello\";\n} else {\n\t\"world\";\n}",
 		"fun j(a, b) {\n\t\"hello\";\n}",
 		"b = a",
-		"while (true) {\n\t\"hello\";\n}",
+		"for (i = 0; (i < 10); i = (i + 1);) {\n\t\"hello\";\n}",
+		"for {\n\t\"hello\";\n}",
 		"(a == b)",
 	}
 	var code = `
@@ -44,7 +46,8 @@ if (!true) { "hello"; }
 if (!a) { "hello"; } else { "world"; }
 fun j(a, b) { "hello"; }
 b = a;
-for (true) { "hello"; }
+for (i=0; i<10; i = i + 1;) { "hello"; }
+for { "hello"; }
 a == b;
 `
 	p := NewParser()
@@ -55,5 +58,6 @@ a == b;
 				i, test[i], line.String())
 		}
 	}
+	fmt.Println(p.errors.String())
 	program.String()
 }
