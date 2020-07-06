@@ -46,6 +46,7 @@ const (
 	IF
 	ELSE
 	LOOP
+	BREAK
 )
 
 type Type int
@@ -60,6 +61,7 @@ var keywords = map[string]Type{
 	"if":     IF,
 	"else":   ELSE,
 	"loop":   LOOP,
+	"break":  BREAK,
 }
 
 type Token struct {

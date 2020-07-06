@@ -115,3 +115,25 @@ func (p *Parser) newFuncCall(function Expression) Expression {
 	exp.Arguments = p.newParameters()
 	return exp
 }
+
+type Return struct {
+	Token lexer.Token
+	Exp   Expression
+}
+
+func (r *Return) Literal() string { return r.Token.Literal }
+func (r *Return) String() string {
+	var out bytes.Buffer
+	out.WriteString("return")
+	out.WriteString(r.Exp.String())
+	return out.String()
+}
+
+func (p *Parser) newReturn() Expression {
+	expression := &Return{
+		Token: p.token,
+	}
+	p.nextToken()
+	expression.Exp = p.parseExpression()
+	return expression
+}

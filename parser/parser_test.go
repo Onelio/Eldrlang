@@ -27,6 +27,7 @@ func TestParseNodes(t *testing.T) {
 		"loop {\n\t\"hello\";\n}",
 		"(a == b)",
 		"j(5, (1 + (-1)))",
+		"",
 	}
 	var code = `
 1; 
@@ -49,6 +50,7 @@ b = a;
 loop { "hello"; }
 a == b;
 j(5, 1 + -1);
+5 + -j();
 `
 	p := NewParser()
 	program := p.ParseProgram(code)

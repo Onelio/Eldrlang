@@ -43,6 +43,8 @@ func (p *Parser) parseStatement() Statement {
 		return p.newLoop()
 	case lexer.FUNCTION:
 		return p.newFunction()
+	case lexer.RETURN:
+		return p.newReturn()
 	default:
 		return p.parseExpression()
 	}
