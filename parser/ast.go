@@ -22,8 +22,9 @@ type Expression interface {
 
 type Package struct {
 	Node
-	Nodes  []Node
-	Errors util.Errors
+	Namespace string
+	Nodes     []Node
+	Errors    util.Errors
 }
 
 func (p *Package) String() string {

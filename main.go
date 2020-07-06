@@ -31,7 +31,7 @@ func main() {
 		if !strings.Contains(line, ";") {
 			continue
 		}
-		parsed := p.ParsePackage(code)
+		parsed := p.ParsePackage(code, "main")
 		code = ""
 		if parsed.Errors.Len() > 0 {
 			fmt.Print(parsed.Errors.String())

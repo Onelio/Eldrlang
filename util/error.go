@@ -12,9 +12,12 @@ const (
 	ExpectedBrace = "expected opening brace but got \"%s\""
 	UnexpectedEOF = "unexpected end of file, expected \"%s\""
 	InvalidNumber = "\"%s\" is not a valid number"
+	InvalidOpForO = "invalid operator for object"
+	InvalidOpComb = "invalid operator combination of objects"
 	IllegalLetter = "illegal character \"%s\""
 	IllegalOpeAtt = "illegal operation attempt"
 	IllegalExprBr = "illegal expresion declaration after break, expected \";\""
+	IdentNotFound = "identifier \"%s\" not found"
 )
 
 type Error struct {

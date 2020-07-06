@@ -57,7 +57,7 @@ return j();
 break;
 `
 	p := NewParser()
-	program := p.ParsePackage(code)
+	program := p.ParsePackage(code, "test")
 	fmt.Println(p.errors.String())
 	for i, line := range program.Nodes {
 		if line.String() != test[i] {

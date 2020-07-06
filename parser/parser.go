@@ -19,9 +19,9 @@ func (p *Parser) Errors() util.Errors {
 	return p.errors
 }
 
-func (p *Parser) ParsePackage(input string) *Package {
+func (p *Parser) ParsePackage(input, pkgName string) *Package {
 	var (
-		pkg  Package
+		pkg  = Package{Namespace: pkgName}
 		node Node
 	)
 	p.lexer.UpdateInput([]byte(input))
