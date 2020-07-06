@@ -45,6 +45,8 @@ func (p *Parser) parseStatement() Statement {
 		return p.newFunction()
 	case lexer.RETURN:
 		return p.newReturn()
+	case lexer.BREAK:
+		return p.newBreak()
 	default:
 		return p.parseExpression()
 	}
@@ -83,6 +85,10 @@ func (p *Parser) parseToken(exp Expression) Expression {
 	switch p.token.Type {
 	case lexer.IDENT:
 		exp = p.newIdentifier()
+		if p.isPeekToken(lexer.LPAREN) {
+			p.nextToken() // Skip current ident token
+			exp = p.newFuncCall(exp)
+		}
 	case lexer.TRUE, lexer.FALSE:
 		exp = p.newBoolean()
 	case lexer.INTEGER:
@@ -114,12 +120,7 @@ func (p *Parser) parseToken(exp Expression) Expression {
 	case lexer.ASTERISK, lexer.SLASH:
 		exp = p.newInfix(exp)
 	case lexer.LPAREN:
-		switch exp.(type) {
-		case *Identifier:
-			exp = p.newFuncCall(exp)
-		default:
-			exp = p.parseGroupExpression()
-		}
+		exp = p.parseGroupExpression()
 	default:
 		err := util.NewError(p.token, util.IllegalLetter, p.token.Literal)
 		p.errors.Add(err)

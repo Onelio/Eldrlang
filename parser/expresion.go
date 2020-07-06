@@ -2,6 +2,7 @@ package parser
 
 import (
 	"Eldrlang/lexer"
+	"Eldrlang/util"
 	"bytes"
 	"strings"
 )
@@ -124,7 +125,7 @@ type Return struct {
 func (r *Return) Literal() string { return r.Token.Literal }
 func (r *Return) String() string {
 	var out bytes.Buffer
-	out.WriteString("return")
+	out.WriteString("return ")
 	out.WriteString(r.Exp.String())
 	return out.String()
 }
@@ -136,4 +137,28 @@ func (p *Parser) newReturn() Expression {
 	p.nextToken()
 	expression.Exp = p.parseExpression()
 	return expression
+}
+
+type Break struct {
+	Token lexer.Token
+}
+
+func (b *Break) Literal() string { return b.Token.Literal }
+func (b *Break) String() string {
+	var out bytes.Buffer
+	out.WriteString("break")
+	return out.String()
+}
+
+func (p *Parser) newBreak() Expression {
+	b := &Break{
+		Token: p.token,
+	}
+	if !p.isPeekToken(lexer.SEMICOLON) {
+		err := util.NewError(p.token, util.IllegalExprBr)
+		p.errors.Add(err)
+		return nil
+	}
+	p.nextToken()
+	return b
 }

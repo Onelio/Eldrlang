@@ -27,7 +27,9 @@ func TestParseNodes(t *testing.T) {
 		"loop {\n\t\"hello\";\n}",
 		"(a == b)",
 		"j(5, (1 + (-1)))",
-		"",
+		"(5 + (-j(a, b, c)))",
+		"return j()",
+		"break",
 	}
 	var code = `
 1; 
@@ -50,16 +52,18 @@ b = a;
 loop { "hello"; }
 a == b;
 j(5, 1 + -1);
-5 + -j();
+5 + -j(a, b, c);
+return j();
+break;
 `
 	p := NewParser()
 	program := p.ParseProgram(code)
+	fmt.Println(p.errors.String())
 	for i, line := range program.Nodes {
 		if line.String() != test[i] {
 			t.Fatalf("failed at line %d expected \"%s\" got \"%s\"",
 				i, test[i], line.String())
 		}
 	}
-	fmt.Println(p.errors.String())
 	program.String()
 }
