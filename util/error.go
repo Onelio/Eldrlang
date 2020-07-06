@@ -44,10 +44,14 @@ func (es *Errors) Add(e *Error) {
 	*es = append(*es, e)
 }
 
+func (es *Errors) Clear() {
+	*es = Errors{}
+}
+
 func (es *Errors) String() string {
 	var out bytes.Buffer
 	for _, e := range *es {
-		_, _ = fmt.Fprintln(&out, e.String())
+		_, _ = fmt.Println(&out, e.String())
 	}
 	return out.String()
 }

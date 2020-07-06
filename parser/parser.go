@@ -6,29 +6,34 @@ import (
 )
 
 type Parser struct {
-	errors util.Errors
 	lexer  *lexer.Lexer
 	token  lexer.Token
+	errors util.Errors
 }
 
 func NewParser() *Parser {
-	return &Parser{}
+	return &Parser{lexer: lexer.NewLexer(nil)}
 }
 
-func (p *Parser) ParseProgram(input string) *Program {
+func (p *Parser) Errors() util.Errors {
+	return p.errors
+}
+
+func (p *Parser) ParsePackage(input string) *Package {
 	var (
-		program Program
-		node    Node
+		pkg  Package
+		node Node
 	)
-	p.lexer = lexer.NewLexer([]byte(input))
-	p.errors = util.Errors{}
+	p.lexer.UpdateInput([]byte(input))
 	for p.nextToken() != lexer.EOF {
 		node = p.parseStatement()
 		if node != nil {
-			program.Nodes = append(program.Nodes, node)
+			pkg.Nodes = append(pkg.Nodes, node)
 		}
 	}
-	return &program
+	pkg.Errors = p.errors
+	p.errors.Clear()
+	return &pkg
 }
 
 func (p *Parser) parseStatement() Statement {

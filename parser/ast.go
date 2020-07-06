@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"Eldrlang/util"
+	"bytes"
 	"fmt"
 	"strings"
 )
@@ -18,24 +20,27 @@ type Expression interface {
 	Node
 }
 
-type Program struct {
+type Package struct {
 	Node
-	Nodes []Node
+	Nodes  []Node
+	Errors util.Errors
 }
 
-func (p *Program) String() {
+func (p *Package) String() string {
+	var out bytes.Buffer
 	var i int
 	for _, line := range p.Nodes {
 		switch line.(type) {
 		case *Block, *Conditional, *Function, *Loop:
 			lines := strings.Split(line.String(), "\n")
 			for _, sub := range lines {
-				fmt.Printf("%d\t%s\n", i, sub)
+				_, _ = fmt.Fprintf(&out, "%d\t%s\n", i, sub)
 				i++
 			}
 		default:
-			fmt.Printf("%d\t%s;\n", i, line.String())
+			_, _ = fmt.Fprintf(&out, "%d\t%s;\n", i, line.String())
 			i++
 		}
 	}
+	return out.String()
 }

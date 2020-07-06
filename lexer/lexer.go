@@ -14,6 +14,11 @@ func NewLexer(input []byte) *Lexer {
 	return &Lexer{input: input}
 }
 
+func (l *Lexer) UpdateInput(input []byte) {
+	l.index = 0
+	l.input = input
+}
+
 func (l *Lexer) NextToken() Token {
 	l.skipSpace()
 	if l.index >= len(l.input) {
