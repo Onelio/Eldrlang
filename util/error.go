@@ -10,6 +10,8 @@ const (
 	ExpectedIdent = "expected name declaration but got \"%s\""
 	ExpectedParen = "expected opening parenthesis but got \"%s\""
 	ExpectedBrace = "expected opening brace but got \"%s\""
+	ExpectedCondV = "expected conditional or boolean"
+	ExpectedFuncP = "expected %d function parameters"
 	UnexpectedEOF = "unexpected end of file, expected \"%s\""
 	UnexpectedBRC = "unexpected right brace, expected \"%s\""
 	InvalidNumber = "\"%s\" is not a valid number"
@@ -19,6 +21,7 @@ const (
 	IllegalOpeAtt = "illegal operation attempt"
 	IllegalExprBr = "illegal expresion declaration after break, expected \";\""
 	IdentNotFound = "identifier \"%s\" not found"
+	IdentNotAFunc = "identifier \"%s\" is not a function"
 )
 
 type Error struct {

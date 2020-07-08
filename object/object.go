@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"Eldrlang/parser"
+	"fmt"
+)
 
 type Object interface {
 	Inspect() string
@@ -27,3 +30,19 @@ type String struct {
 }
 
 func (s *String) Inspect() string { return s.Value }
+
+type Function struct {
+	Parameters []*parser.Identifier
+	Body       *parser.Block
+}
+
+func (f *Function) Inspect() string {
+	return "function"
+}
+
+type Builtin struct {
+	Size int
+	Fun  BuiltFun
+}
+
+func (b *Builtin) Inspect() string { return "builtin function" }

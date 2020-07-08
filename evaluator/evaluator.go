@@ -49,6 +49,10 @@ func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
 		return e.evalBlock(stat)
 	case *parser.Conditional:
 		return e.evalConditional(stat)
+	case *parser.Function:
+		e.evalFunction(stat)
+	case *parser.FuncCall:
+		return e.evalFuncCall(stat)
 	case *parser.Return:
 		return e.EvaluateNode(stat.Exp)
 	}
@@ -59,10 +63,9 @@ func (e *Evaluator) evalIdentifier(ident *parser.Identifier) object.Object {
 	if val := e.GetValue(ident.Value); val != nil {
 		return val
 	}
-	// TODO FIX BUILTIN
-	/*if builtin, ok := builtins[ident.Value]; ok {
+	if builtin, ok := object.Builtins[ident.Value]; ok {
 		return builtin
-	}*/
+	}
 	err := util.NewError(ident.Token, util.IdentNotFound, ident.Value)
 	e.errors.Add(err)
 	return nil
@@ -191,11 +194,10 @@ func (e *Evaluator) evalBlock(block *parser.Block) object.Object {
 
 func (e *Evaluator) evalConditional(ie *parser.Conditional) object.Object {
 	condition := e.EvaluateNode(ie.Require)
-	/*if isError(condition) {
-		return condition
-	}*/
 	cond, valid := condition.(*object.Boolean)
 	if !valid {
+		err := util.NewError(ie.Token, util.ExpectedCondV)
+		e.errors.Add(err)
 		return nil
 	}
 	if cond.Value {
@@ -203,6 +205,64 @@ func (e *Evaluator) evalConditional(ie *parser.Conditional) object.Object {
 	} else if ie.Else != nil {
 		return e.EvaluateNode(ie.Else)
 	} else {
-		return &object.Null{}
+		return nil
 	}
+}
+
+func (e *Evaluator) evalFunction(f *parser.Function) {
+	fun := &object.Function{Parameters: f.Params, Body: f.Body}
+	e.SetValue(f.Name.Literal(), fun)
+}
+
+func (e *Evaluator) evalFuncCall(fc *parser.FuncCall) object.Object {
+	ident := fc.Function.(*parser.Identifier)
+	storedFun := e.EvaluateNode(ident)
+	if storedFun == nil {
+		err := util.NewError(ident.Token, util.IdentNotFound, ident.Value)
+		e.errors.Add(err)
+		return nil
+	}
+	var params []object.Object
+	for _, a := range fc.Arguments {
+		evaluated := e.EvaluateNode(a)
+		params = append(params, evaluated)
+	}
+	switch fun := storedFun.(type) {
+	case *object.Function:
+		if len(fun.Parameters) != len(params) {
+			err := util.NewError(ident.Token, util.ExpectedFuncP, len(fun.Parameters))
+			e.errors.Add(err)
+			return nil
+		}
+		return e.exeFuncCall(fun, params)
+	case *object.Builtin:
+		if fun.Size != len(params) {
+			err := util.NewError(ident.Token, util.ExpectedFuncP, fun.Size)
+			e.errors.Add(err)
+			return nil
+		}
+		return fun.Fun(params...)
+	default:
+		err := util.NewError(ident.Token, util.IdentNotAFunc, ident.Literal())
+		e.errors.Add(err)
+		return nil
+	}
+}
+
+func (e *Evaluator) exeFuncCall(fun *object.Function, params []object.Object) object.Object {
+	e.PushChild()
+	for index, param := range fun.Parameters {
+		e.SetValue(param.Literal(), params[index])
+	}
+	result := e.EvaluateNode(fun.Body)
+	e.PopChild()
+	return result
+}
+
+func (e *Evaluator) exeBuiltin(fun *object.Function, params []object.Object) object.Object {
+	e.PushChild()
+	for index, param := range fun.Parameters {
+		e.SetValue(param.Literal(), params[index])
+	}
+	return e.EvaluateNode(fun.Body)
 }

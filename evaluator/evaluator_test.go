@@ -33,7 +33,9 @@ func TestEvaluatorNodes(t *testing.T) {
 		"",
 		"hello",
 		"world",
-		"null",
+		"",
+		"",
+		"hello world",
 	}
 	var code = `
 1;
@@ -62,6 +64,8 @@ b;
 if (true) { "hello"; } else { "world"; }
 if (!true) { "hello"; } else { "world"; }
 if (!true) { "hello"; }
+fun hello(second) { return "hello " + second; }
+hello("world");
 `
 	p := parser.NewParser()
 	eval := NewEvaluator()

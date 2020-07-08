@@ -147,7 +147,7 @@ func (p *Parser) newLoop() Statement {
 type Function struct {
 	Token  lexer.Token
 	Name   *Identifier
-	Params []Expression
+	Params []*Identifier
 	Body   *Block
 }
 
@@ -182,7 +182,16 @@ func (p *Parser) newFunction() Statement {
 		p.errors.Add(err)
 		return nil
 	}
-	fun.Params = p.newParameters()
+	params := p.newParameters()
+	for _, param := range params {
+		ident, valid := param.(*Identifier)
+		if !valid {
+			err := util.NewError(p.token, util.ExpectedIdent, param.String())
+			p.errors.Add(err)
+			return nil
+		}
+		fun.Params = append(fun.Params, ident)
+	}
 	if p.nextToken() != lexer.LBRACE {
 		err := util.NewError(p.token, util.ExpectedBrace, p.token.Literal)
 		p.errors.Add(err)

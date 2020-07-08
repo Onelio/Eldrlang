@@ -109,7 +109,7 @@ func (p *Parser) parseToken(exp Expression) Expression { // TODO ADD LPAREN OBJ
 		exp = p.newPrefix()
 	case lexer.PLUS, lexer.MINUS:
 		switch exp.(type) {
-		case *String, nil:
+		case nil:
 			exp = p.newPrefix()
 		default:
 			exp = p.newInfix(exp)
