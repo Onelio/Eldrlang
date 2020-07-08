@@ -27,7 +27,7 @@ func (p *Parser) ParsePackage(input, pkgName string) *Package {
 	p.lexer.UpdateInput([]byte(input))
 	for p.nextToken() != lexer.EOF {
 		node = p.parseStatement()
-		if node != nil {
+		if node != nil { //TODO FIX NULL RETURNS AT { 5 + (a * 2) };
 			pkg.Nodes = append(pkg.Nodes, node)
 		}
 	}

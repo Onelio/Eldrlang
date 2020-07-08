@@ -30,6 +30,7 @@ func TestParseNodes(t *testing.T) {
 		"(5 + (-j(a, b, c)))",
 		"return j()",
 		"break",
+		"{\n\t(5 + (a * 2));\n}",
 	}
 	var code = `
 1; 
@@ -55,6 +56,7 @@ j(5, 1 + -1);
 5 + -j(a, b, c);
 return j();
 break;
+{ 5 + (a * 2); }
 `
 	p := NewParser()
 	program := p.ParsePackage(code, "test")

@@ -55,7 +55,7 @@ a;
 var abc = "hello";
 abc = abc + " world";
 abc;
-{ 5 + (a * 2) };
+{ 5 + (a * 2); }
 if (true) { "hello"; } else { "world"; }
 if (!true) { "hello"; } else { "world"; }
 if (!true) { "hello"; }
