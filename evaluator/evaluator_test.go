@@ -29,6 +29,8 @@ func TestEvaluatorNodes(t *testing.T) {
 		"",
 		"hello world",
 		"7",
+		"-1",
+		"",
 		"hello",
 		"world",
 		"null",
@@ -55,16 +57,20 @@ var abc = "hello";
 abc = abc + " world";
 abc;
 { 5 + (a * 2); }
+{ var b = -1; b; }
+b;
 if (true) { "hello"; } else { "world"; }
 if (!true) { "hello"; } else { "world"; }
 if (!true) { "hello"; }
 `
 	p := parser.NewParser()
+	eval := NewEvaluator()
 	parsed := p.ParsePackage(code, "main")
 	if parsed.Errors.Len() != 0 {
+		fmt.Println("Parse-time:")
 		fmt.Print(parsed.Errors.String())
+		t.Fatalf("PARSE-FAIL")
 	}
-	eval := NewEvaluator()
 	for i, node := range parsed.Nodes {
 		eval := eval.EvaluateNode(node)
 		if eval == nil {
@@ -79,5 +85,10 @@ if (!true) { "hello"; }
 			}
 			fmt.Println(eval.Inspect())
 		}
+	}
+	if eval.errors.Len() != 0 {
+		fmt.Println("Run-time:")
+		fmt.Print(eval.errors.String())
+		t.Log("RUN-FAIL")
 	}
 }

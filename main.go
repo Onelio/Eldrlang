@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Eldrlang/evaluator"
 	"Eldrlang/parser"
 	"bufio"
 	"fmt"
@@ -12,7 +13,8 @@ func main() {
 	fmt.Println(LOGO)
 	var (
 		input = bufio.NewReader(os.Stdin)
-		p     = parser.NewParser()
+		comp  = parser.NewParser()
+		eval  = evaluator.NewEvaluator()
 		code  = ""
 	)
 	for {
@@ -31,12 +33,18 @@ func main() {
 		if !strings.Contains(line, ";") {
 			continue
 		}
-		parsed := p.ParsePackage(code, "main")
+		parsed := comp.ParsePackage(code, "main")
 		code = ""
 		if parsed.Errors.Len() > 0 {
 			fmt.Print(parsed.Errors.String())
 			continue
 		}
-		fmt.Println(parsed)
+
+		obj := eval.Evaluate(parsed)
+		if obj.Errors.Len() > 0 {
+			fmt.Print(obj.Errors.String())
+			continue
+		}
+		fmt.Print(obj)
 	}
 }

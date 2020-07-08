@@ -60,7 +60,7 @@ break;
 `
 	p := NewParser()
 	program := p.ParsePackage(code, "test")
-	fmt.Println(p.errors.String())
+	fmt.Println(program.Errors.String())
 	for i, line := range program.Nodes {
 		if line.String() != test[i] {
 			t.Fatalf("failed at line %d expected \"%s\" got \"%s\"",

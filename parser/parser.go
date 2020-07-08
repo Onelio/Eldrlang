@@ -59,12 +59,17 @@ func (p *Parser) parseStatement() Statement {
 
 func (p *Parser) parseExpression() Expression {
 	var exp Expression
-	for !p.isTokenOrEOF(lexer.SEMICOLON) {
+	for !p.isTokenOrEOF(lexer.SEMICOLON, lexer.RBRACE) {
 		exp = p.parseToken(exp)
 		p.nextToken()
 	}
 	if p.isToken(lexer.EOF) {
 		err := util.NewError(p.token, util.UnexpectedEOF, ";")
+		p.errors.Add(err)
+		return nil
+	}
+	if p.isToken(lexer.RBRACE) {
+		err := util.NewError(p.token, util.UnexpectedBRC, ";")
 		p.errors.Add(err)
 		return nil
 	}
@@ -86,7 +91,7 @@ func (p *Parser) parseGroupExpression() Expression {
 	return exp
 }
 
-func (p *Parser) parseToken(exp Expression) Expression {
+func (p *Parser) parseToken(exp Expression) Expression { // TODO ADD LPAREN OBJ
 	switch p.token.Type {
 	case lexer.IDENT:
 		exp = p.newIdentifier()
@@ -122,7 +127,7 @@ func (p *Parser) parseToken(exp Expression) Expression {
 		fallthrough
 	case lexer.LTEQ, lexer.GT, lexer.GTEQ:
 		fallthrough
-	case lexer.ASTERISK, lexer.SLASH:
+	case lexer.ASTERISK, lexer.SLASH: //TODO ADD OP PRIORITY
 		exp = p.newInfix(exp)
 	case lexer.LPAREN:
 		exp = p.parseGroupExpression()
@@ -151,6 +156,14 @@ func (p *Parser) isPeekToken(t lexer.Type) bool {
 	return p.peekToken() == t
 }
 
-func (p *Parser) isTokenOrEOF(t lexer.Type) bool {
-	return p.isToken(t) || p.isToken(lexer.EOF)
+func (p *Parser) isTokenOrEOF(t ...lexer.Type) bool {
+	if p.isToken(lexer.EOF) {
+		return true
+	}
+	for _, e := range t {
+		if p.isToken(e) {
+			return true
+		}
+	}
+	return false
 }

@@ -8,7 +8,7 @@ import (
 
 type Evaluator struct {
 	*object.Runtime
-	Errors  util.Errors
+	errors  util.Errors
 	srcCode *parser.Package
 }
 
@@ -16,13 +16,15 @@ func NewEvaluator() *Evaluator {
 	return &Evaluator{Runtime: object.NewRuntime()}
 }
 
-func (e *Evaluator) Evaluate(src *parser.Package) object.Object {
+func (e *Evaluator) Evaluate(src *parser.Package) *Output {
 	e.srcCode = src
-	var result object.Object
+	var result = Output{}
 	for _, node := range e.srcCode.Nodes {
-		result = e.EvaluateNode(node)
+		result.Object = e.EvaluateNode(node)
 	}
-	return result
+	result.Errors = e.errors
+	e.errors.Clear()
+	return &result
 }
 
 func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
@@ -62,7 +64,7 @@ func (e *Evaluator) evalIdentifier(ident *parser.Identifier) object.Object {
 		return builtin
 	}*/
 	err := util.NewError(ident.Token, util.IdentNotFound, ident.Value)
-	e.Errors.Add(err)
+	e.errors.Add(err)
 	return nil
 }
 
@@ -79,7 +81,7 @@ func (e *Evaluator) evalPrefix(pref *parser.Prefix) object.Object {
 	case *object.Boolean:
 		if pref.Operator != "!" {
 			err := util.NewError(pref.Token, util.InvalidOpForO)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 		return &object.Boolean{Value: !exp.Value}
@@ -91,12 +93,12 @@ func (e *Evaluator) evalPrefix(pref *parser.Prefix) object.Object {
 			return &object.Integer{Value: -exp.Value}
 		default:
 			err := util.NewError(pref.Token, util.InvalidOpForO)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 	}
 	err := util.NewError(pref.Token, util.InvalidOpForO)
-	e.Errors.Add(err)
+	e.errors.Add(err)
 	return nil
 }
 
@@ -107,7 +109,7 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 		str, valid := right.(*object.String)
 		if !valid {
 			err := util.NewError(inf.Token, util.InvalidOpComb)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 		switch inf.Operator {
@@ -116,14 +118,14 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 				Value: left.Value + str.Value}
 		default:
 			err := util.NewError(inf.Token, util.InvalidOpForO)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 	case *object.Integer:
 		num, valid := right.(*object.Integer)
 		if !valid {
 			err := util.NewError(inf.Token, util.InvalidOpComb)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 		switch inf.Operator {
@@ -145,14 +147,14 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 			return &object.Boolean{Value: left.Value != num.Value}
 		default:
 			err := util.NewError(inf.Token, util.InvalidOpForO)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 	case *object.Boolean:
 		val, valid := right.(*object.Boolean)
 		if !valid {
 			err := util.NewError(inf.Token, util.InvalidOpComb)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 		switch inf.Operator {
@@ -162,7 +164,7 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 			return &object.Boolean{Value: left.Value != val.Value}
 		default:
 			err := util.NewError(inf.Token, util.InvalidOpForO)
-			e.Errors.Add(err)
+			e.errors.Add(err)
 			return nil
 		}
 	}

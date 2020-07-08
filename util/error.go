@@ -11,6 +11,7 @@ const (
 	ExpectedParen = "expected opening parenthesis but got \"%s\""
 	ExpectedBrace = "expected opening brace but got \"%s\""
 	UnexpectedEOF = "unexpected end of file, expected \"%s\""
+	UnexpectedBRC = "unexpected right brace, expected \"%s\""
 	InvalidNumber = "\"%s\" is not a valid number"
 	InvalidOpForO = "invalid operator for object"
 	InvalidOpComb = "invalid operator combination of objects"
@@ -34,7 +35,7 @@ func NewError(t lexer.Token, f string, a ...interface{}) *Error {
 
 func (e *Error) String() string {
 	return fmt.Sprintf("* Error at L%d %s",
-		e.token.Line, e.str)
+		e.token.Line+1, e.str)
 }
 
 type Errors []*Error
