@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"Eldrlang/object"
 	"Eldrlang/parser"
 	"fmt"
 	"testing"
@@ -65,7 +64,7 @@ if (!true) { "hello"; }
 	if parsed.Errors.Len() != 0 {
 		fmt.Print(parsed.Errors.String())
 	}
-	eval := NewEvaluator(object.NewContext())
+	eval := NewEvaluator()
 	for i, node := range parsed.Nodes {
 		eval := eval.EvaluateNode(node)
 		if eval == nil {

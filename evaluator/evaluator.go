@@ -7,15 +7,13 @@ import (
 )
 
 type Evaluator struct {
-	*object.Context
+	*object.Runtime
 	Errors  util.Errors
 	srcCode *parser.Package
 }
 
-func NewEvaluator(ctx *object.Context) *Evaluator {
-	return &Evaluator{
-		Context: ctx,
-	}
+func NewEvaluator() *Evaluator {
+	return &Evaluator{Runtime: object.NewRuntime()}
 }
 
 func (e *Evaluator) Evaluate(src *parser.Package) object.Object {
@@ -38,7 +36,7 @@ func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
 	case *parser.Identifier:
 		return e.evalIdentifier(stat)
 	case *parser.Variable:
-		e.Context.Set(stat.Literal(), &object.Null{})
+		e.SetValue(stat.Literal(), &object.Null{})
 	case *parser.Assign:
 		e.evalAssign(stat)
 	case *parser.Prefix:
@@ -56,7 +54,7 @@ func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
 }
 
 func (e *Evaluator) evalIdentifier(ident *parser.Identifier) object.Object {
-	if val := e.Get(ident.Value); val != nil {
+	if val := e.GetValue(ident.Value); val != nil {
 		return val
 	}
 	// TODO FIX BUILTIN
@@ -71,8 +69,8 @@ func (e *Evaluator) evalIdentifier(ident *parser.Identifier) object.Object {
 func (e *Evaluator) evalAssign(stat *parser.Assign) {
 	e.EvaluateNode(stat.Left)
 	name := stat.Left.Literal()
-	if e.Get(name) != nil {
-		e.Set(name, e.EvaluateNode(stat.Right))
+	if e.GetValue(name) != nil {
+		e.SetValue(name, e.EvaluateNode(stat.Right))
 	}
 }
 
@@ -172,6 +170,7 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 }
 
 func (e *Evaluator) evalBlock(block *parser.Block) object.Object {
+	e.PushChild()
 	var result object.Object
 	for _, statement := range block.Nodes {
 		result = e.EvaluateNode(statement)
@@ -184,6 +183,7 @@ func (e *Evaluator) evalBlock(block *parser.Block) object.Object {
 			}
 		}
 	}
+	e.PopChild()
 	return result
 }
 
