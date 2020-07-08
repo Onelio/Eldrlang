@@ -12,10 +12,10 @@ type Variable struct {
 	Name  *Identifier
 }
 
-func (d *Variable) Literal() string { return d.Token.Literal }
+func (d *Variable) Literal() string { return d.Name.String() }
 func (d *Variable) String() string {
 	var out bytes.Buffer
-	out.WriteString(d.Literal() + " ")
+	out.WriteString(d.Token.Literal + " ")
 	out.WriteString(d.Name.String())
 	return out.String()
 }

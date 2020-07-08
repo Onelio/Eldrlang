@@ -4,13 +4,12 @@ import (
 	"Eldrlang/object"
 	"Eldrlang/parser"
 	"Eldrlang/util"
-	"fmt"
 )
 
 type Evaluator struct {
-	Context *object.Context
+	*object.Context
 	Errors  util.Errors
-	pkg     *parser.Package
+	srcCode *parser.Package
 }
 
 func NewEvaluator(ctx *object.Context) *Evaluator {
@@ -19,10 +18,10 @@ func NewEvaluator(ctx *object.Context) *Evaluator {
 	}
 }
 
-func (e *Evaluator) Evaluate(pkg *parser.Package) object.Object {
-	e.pkg = pkg
+func (e *Evaluator) Evaluate(src *parser.Package) object.Object {
+	e.srcCode = src
 	var result object.Object
-	for _, node := range pkg.Nodes {
+	for _, node := range e.srcCode.Nodes {
 		result = e.EvaluateNode(node)
 	}
 	return result
@@ -39,7 +38,9 @@ func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
 	case *parser.Identifier:
 		return e.evalIdentifier(stat)
 	case *parser.Variable:
-		e.Context.Set(e.asPkgName(stat.Name.Value), nil)
+		e.Context.Set(stat.Literal(), &object.Null{})
+	case *parser.Assign:
+		e.evalAssign(stat)
 	case *parser.Prefix:
 		return e.evalPrefix(stat)
 	case *parser.Infix:
@@ -55,17 +56,24 @@ func (e *Evaluator) EvaluateNode(node parser.Node) object.Object {
 }
 
 func (e *Evaluator) evalIdentifier(ident *parser.Identifier) object.Object {
-	if val, ok := e.Context.Get(ident.Value); ok {
+	if val := e.Get(ident.Value); val != nil {
 		return val
 	}
 	// TODO FIX BUILTIN
 	/*if builtin, ok := builtins[ident.Value]; ok {
 		return builtin
 	}*/
-	err := util.NewError(ident.Token, util.IdentNotFound,
-		ident.Value)
+	err := util.NewError(ident.Token, util.IdentNotFound, ident.Value)
 	e.Errors.Add(err)
 	return nil
+}
+
+func (e *Evaluator) evalAssign(stat *parser.Assign) {
+	e.EvaluateNode(stat.Left)
+	name := stat.Left.Literal()
+	if e.Get(name) != nil {
+		e.Set(name, e.EvaluateNode(stat.Right))
+	}
 }
 
 func (e *Evaluator) evalPrefix(pref *parser.Prefix) object.Object {
@@ -105,8 +113,6 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 			return nil
 		}
 		switch inf.Operator {
-		case "=":
-			left.Value = str.Value
 		case "+":
 			return &object.String{
 				Value: left.Value + str.Value}
@@ -123,8 +129,6 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 			return nil
 		}
 		switch inf.Operator {
-		case "=":
-			left.Value = num.Value
 		case "+":
 			return &object.Integer{Value: left.Value + num.Value}
 		case "-":
@@ -154,8 +158,6 @@ func (e *Evaluator) evalInfix(inf *parser.Infix) object.Object {
 			return nil
 		}
 		switch inf.Operator {
-		case "=":
-			left.Value = val.Value
 		case "==":
 			return &object.Boolean{Value: left.Value == val.Value}
 		case "!=":
@@ -201,8 +203,4 @@ func (e *Evaluator) evalConditional(ie *parser.Conditional) object.Object {
 	} else {
 		return &object.Null{}
 	}
-}
-
-func (e *Evaluator) asPkgName(name string) string {
-	return fmt.Sprintf("%s.%s", e.pkg.Namespace, name)
 }

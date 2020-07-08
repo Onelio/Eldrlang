@@ -1,27 +1,34 @@
 package object
 
-func NewEnclosedContext(outer *Context) *Context {
-	env := NewContext()
-	env.outer = outer
-	return env
-}
-
 func NewContext() *Context {
 	s := make(map[string]Object)
-	return &Context{store: s, outer: nil}
+	return &Context{store: s}
 }
 
 type Context struct {
 	store map[string]Object
-	outer *Context
+	child *Context
 }
 
-func (e *Context) Get(name string) (Object, bool) {
-	obj, ok := e.store[name]
-	if !ok && e.outer != nil {
-		obj, ok = e.outer.Get(name)
+func (e *Context) NewChildren() *Context {
+	e.child = NewContext()
+	return e.child
+}
+
+func (e *Context) Get(name string) Object {
+	var (
+		ctx    = e
+		object Object
+		valid  bool
+	)
+	for ctx != nil {
+		object, valid = ctx.store[name]
+		if valid {
+			break
+		}
+		ctx = ctx.child
 	}
-	return obj, ok
+	return object
 }
 
 func (e *Context) Set(name string, val Object) Object {
