@@ -14,5 +14,15 @@ Made for fun during summer it attempts to execute scripts and raw code from cons
 - fun f(param) { return param; }
 - f(1);
 
+## Example
+    print("Hello, what is your name?\n");
+    print("My name is: ");
+    var name = "";
+    scan(name);
+    print("Nice to meet you, ", name, "\n");
+
 ## How to execute
 Just compile the root directory Eldrlang and run.
+> go get -u github.com/Onelio/Eldrlang
+>
+> go build github.com/Onelio/Eldrlang
