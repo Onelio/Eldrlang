@@ -1,9 +1,9 @@
 package util
 
 import (
-	"Eldrlang/lexer"
 	"bytes"
 	"fmt"
+	"github.com/Onelio/Eldrlang/lexer"
 )
 
 const (

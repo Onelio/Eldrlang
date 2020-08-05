@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"Eldrlang/lexer"
-	"Eldrlang/util"
 	"bytes"
+	"github.com/Onelio/Eldrlang/lexer"
+	"github.com/Onelio/Eldrlang/util"
 	"strconv"
 )
 

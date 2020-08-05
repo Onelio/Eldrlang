@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"Eldrlang/util"
 	"bytes"
 	"fmt"
+	"github.com/Onelio/Eldrlang/util"
 	"strings"
 )
 

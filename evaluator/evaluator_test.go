@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"Eldrlang/parser"
 	"fmt"
+	"github.com/Onelio/Eldrlang/parser"
 	"testing"
 )
 

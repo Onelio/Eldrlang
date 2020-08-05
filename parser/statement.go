@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"Eldrlang/lexer"
-	"Eldrlang/util"
 	"bytes"
+	"github.com/Onelio/Eldrlang/lexer"
+	"github.com/Onelio/Eldrlang/util"
 	"strings"
 )
 
@@ -30,8 +30,10 @@ func (p *Parser) newVariable() Expression {
 	}
 	def.Name = p.newIdentifier().(*Identifier)
 
-	p.nextToken()
-	return p.parseToken(def)
+	if p.nextToken() != lexer.SEMICOLON {
+		return p.parseToken(def)
+	}
+	return def
 }
 
 type Block struct {

@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"Eldrlang/object"
-	"Eldrlang/util"
+	"github.com/Onelio/Eldrlang/object"
+	"github.com/Onelio/Eldrlang/util"
 )
 
 type Output struct {

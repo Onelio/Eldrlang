@@ -8,6 +8,7 @@ import (
 func TestParseNodes(t *testing.T) {
 	var test = []string{
 		"1",
+		"var z",
 		"var a = 2",
 		"var b = (+3)",
 		"var c = ((+4) + (-5))",
@@ -34,6 +35,7 @@ func TestParseNodes(t *testing.T) {
 	}
 	var code = `
 1; 
+var z;
 var a = 2;
 var b = +3;
 var c = +4 + -5;

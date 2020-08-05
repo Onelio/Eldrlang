@@ -1,8 +1,8 @@
 package object
 
 import (
-	"Eldrlang/parser"
 	"fmt"
+	"github.com/Onelio/Eldrlang/parser"
 )
 
 type Object interface {

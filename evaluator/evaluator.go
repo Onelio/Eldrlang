@@ -1,9 +1,9 @@
 package evaluator
 
 import (
-	"Eldrlang/object"
-	"Eldrlang/parser"
-	"Eldrlang/util"
+	"github.com/Onelio/Eldrlang/object"
+	"github.com/Onelio/Eldrlang/parser"
+	"github.com/Onelio/Eldrlang/util"
 )
 
 type Evaluator struct {
@@ -236,7 +236,7 @@ func (e *Evaluator) evalFuncCall(fc *parser.FuncCall) object.Object {
 		}
 		return e.exeFuncCall(fun, params)
 	case *object.Builtin:
-		if fun.Size != len(params) {
+		if fun.Size > -1 && fun.Size != len(params) {
 			err := util.NewError(ident.Token, util.ExpectedFuncP, fun.Size)
 			e.errors.Add(err)
 			return nil

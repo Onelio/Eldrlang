@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"Eldrlang/lexer"
-	"Eldrlang/util"
+	"github.com/Onelio/Eldrlang/lexer"
+	"github.com/Onelio/Eldrlang/util"
 )
 
 type Parser struct {

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"Eldrlang/evaluator"
-	"Eldrlang/parser"
 	"bufio"
 	"fmt"
+	"github.com/Onelio/Eldrlang/evaluator"
+	"github.com/Onelio/Eldrlang/parser"
 	"os"
 	"strings"
 )
